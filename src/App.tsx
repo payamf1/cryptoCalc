@@ -26,18 +26,6 @@ const CryptoProfitCalculator = () => {
   const [priceIncrease, setPriceIncrease] = useState<string | null>(null);
   const [feePercentage, setFeePercentage] = useState<string | null>(null);
 
-  
-  useEffect(() => {
-    if (matchFees && feePercentage !== null) {
-      const saleAmount = parseFormattedNumber(salePrice) * parseFloat(effectiveAmount || '0');
-      const feePercentageNumber = parseFloat(feePercentage);
-      if (!isNaN(feePercentageNumber)) {
-        const matchedSellFee = ((feePercentageNumber / 100) * saleAmount).toFixed(2);
-        setSellFee(formatNumber(matchedSellFee));
-      }
-    }
-  }, [matchFees, feePercentage, salePrice, effectiveAmount]);
-
   const formatNumber = (value: string | number) => {
     const parts = String(value).split('.');
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -59,45 +47,39 @@ const CryptoProfitCalculator = () => {
     const price = parseFormattedNumber(purchasePrice);
     const amount = parseFloat(purchaseAmount) || 0;
     const fee = parseFormattedNumber(buyFee);
-
+  
     if (price > 0 && amount > 0) {
       const totalCost = price * amount + fee;
-      const effectiveAmt = (price * amount) / totalCost * amount;
-      console.log('totalCost: ',totalCost);
-      console.log('effectiveAmt: ', effectiveAmt);
-      setEffectiveAmount(effectiveAmt.toFixed(8));
-    } else {
-      setEffectiveAmount('');
+      return ((price * amount) / totalCost * amount).toFixed(8);
     }
+    return '0';
   }, [purchasePrice, purchaseAmount, buyFee]);
 
   const calculatePriceIncrease = useCallback(() => {
     const buyPrice = parseFormattedNumber(purchasePrice);
     const sellPrice = parseFormattedNumber(salePrice);
-
+  
     if (buyPrice > 0 && sellPrice > 0) {
       const increase = ((sellPrice - buyPrice) / buyPrice) * 100;
-      setPriceIncrease(increase.toFixed(2));
-    } else {
-      setPriceIncrease(null);
+      return increase.toFixed(2);
     }
+    return null;
   }, [purchasePrice, salePrice]);
 
   const calculateFeePercentage = useCallback(() => {
     const price = parseFormattedNumber(purchasePrice);
     const amount = parseFloat(purchaseAmount) || 0;
     const fee = parseFormattedNumber(buyFee);
-
+  
     if (price > 0 && amount > 0 && fee > 0) {
       const totalPurchase = price * amount;
       const percentage = (fee / totalPurchase) * 100;
-      setFeePercentage(percentage.toFixed(2));
-    } else {
-      setFeePercentage(null);
+      return percentage.toFixed(2);
     }
+    return null;
   }, [purchasePrice, purchaseAmount, buyFee]);
 
-  const calculateProfit = () => {
+  const calculateProfit = useCallback(() => {
     const buyPrice = parseFormattedNumber(purchasePrice);
     const amount = parseFloat(purchaseAmount) || 0;
     const sellPrice = parseFormattedNumber(salePrice);
@@ -105,27 +87,64 @@ const CryptoProfitCalculator = () => {
     const sellFeeAmount = parseFormattedNumber(sellFee);
     
     if (buyPrice > 0 && amount > 0 && sellPrice > 0) {
-      const totalCost = (buyPrice * parseFloat(purchaseAmount)) + buyFeeAmount;
+      const totalCost = (buyPrice * amount) + buyFeeAmount;
       const totalRevenue = (sellPrice * amount) - sellFeeAmount;
       const profitValue = totalRevenue - totalCost;
       const profitPercentageValue = ((profitValue / totalCost) * 100).toFixed(2);
-
-      console.log('*** totalCost: ', totalCost);
-      console.log('*** totalRevenue: ', totalRevenue);
       
-      setProfit(profitValue.toFixed(2));
-      setProfitPercentage(profitPercentageValue);
-
-    } else {
-      setProfit(null);
-      setProfitPercentage(null);
+      return {
+        profit: profitValue.toFixed(2),
+        profitPercentage: profitPercentageValue
+      };
     }
-  };
+    return { profit: null, profitPercentage: null };
+  }, [purchasePrice, purchaseAmount, salePrice, buyFee, sellFee]);
 
   //bug fix due to This error is related to a type mismatch between the onCheckedChange prop of the Checkbox component and the setMatchFees function. Let's address this.
   const handleCheckboxChange = (checked: CheckedState) => {
     setMatchFees(checked == true);
   };
+
+
+  // start recal on change
+  const calculateAll = useCallback(() => {
+    
+    
+    // Calculate effective amount
+    const effectiveAmt = calculateEffectiveAmount();
+    setEffectiveAmount(effectiveAmt);
+
+    // Calculate price increase
+    const priceIncreaseValue = calculatePriceIncrease();
+    setPriceIncrease(priceIncreaseValue);
+
+    // Calculate fee percentage
+    const feePercentageValue = calculateFeePercentage();
+    setFeePercentage(feePercentageValue);
+
+    // Calculate profit
+    const { profit, profitPercentage } = calculateProfit();
+    setProfit(profit);
+    setProfitPercentage(profitPercentage);
+    
+  }, [calculateEffectiveAmount, calculatePriceIncrease, calculateFeePercentage, calculateProfit]);
+
+  useEffect(() => {
+    calculateAll();
+  }, [calculateAll]);
+
+  useEffect(() => {
+    if (matchFees && feePercentage !== null) {
+      const saleAmount = parseFormattedNumber(salePrice) * parseFloat(effectiveAmount || '0');
+      const feePercentageNumber = parseFloat(feePercentage);
+      if (!isNaN(feePercentageNumber)) {
+        const matchedSellFee = ((feePercentageNumber / 100) * saleAmount).toFixed(2);
+        setSellFee(formatNumber(matchedSellFee));
+      }
+    }
+  }, [matchFees, feePercentage, salePrice, effectiveAmount]);
+  // end recal on change
+
 
   const clearValues = () => {
     setPurchasePrice('');
@@ -140,12 +159,7 @@ const CryptoProfitCalculator = () => {
     setFeePercentage(null);
   };
 
-  useEffect(() => {
-    calculateEffectiveAmount();
-    calculatePriceIncrease();
-    calculateFeePercentage();
-  }, [calculateEffectiveAmount, calculatePriceIncrease, calculateFeePercentage]);
-
+  
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
@@ -284,9 +298,6 @@ const CryptoProfitCalculator = () => {
             </CardContent>
           </Card>
           
-          <Button onClick={calculateProfit} className="w-full">
-            Calculate Profit
-          </Button>
           {profit !== null && profitPercentage !== null && (
             <div className="mt-4 text-center">
               <p className="text-lg font-semibold">
