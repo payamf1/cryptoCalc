@@ -62,6 +62,8 @@ const CryptoProfitCalculator = () => {
     if (price > 0 && amount > 0) {
       const totalCost = price * amount + fee;
       const effectiveAmt = (price * amount) / totalCost * amount;
+      console.log('totalCost: ',totalCost);
+      console.log('effectiveAmt: ', effectiveAmt);
       setEffectiveAmount(effectiveAmt.toFixed(8));
     } else {
       setEffectiveAmount('');
@@ -96,15 +98,19 @@ const CryptoProfitCalculator = () => {
 
   const calculateProfit = () => {
     const buyPrice = parseFormattedNumber(purchasePrice);
-    const amount = parseFloat(effectiveAmount) || 0;
+    const amount = parseFloat(purchaseAmount) || 0;
     const sellPrice = parseFormattedNumber(salePrice);
     const buyFeeAmount = parseFormattedNumber(buyFee);
     const sellFeeAmount = parseFormattedNumber(sellFee);
     
     if (buyPrice > 0 && amount > 0 && sellPrice > 0) {
-      const totalCost = buyPrice * parseFloat(purchaseAmount) + buyFeeAmount;
-      const totalRevenue = sellPrice * amount - sellFeeAmount;
+      const totalCost = (buyPrice * parseFloat(purchaseAmount)) + buyFeeAmount;
+      const totalRevenue = (sellPrice * amount) - sellFeeAmount;
       const profitValue = totalRevenue - totalCost;
+      console.log('*** totalCost: ', totalCost);
+      console.log('*** totalRevenue: ', totalRevenue);
+      console.log('***');
+      console.log('*** totalRevenue: (', sellPrice, '*', amount, ') -', sellFeeAmount);
       setProfit(profitValue.toFixed(2));
     } else {
       setProfit(null);
