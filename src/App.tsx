@@ -38,6 +38,13 @@ const CryptoProfitCalculator = () => {
     }
   }, [matchFees, feePercentage, salePrice, effectiveAmount]);
 
+  const handleBlur = () => {
+    calculateEffectiveAmount();
+    calculatePriceIncrease();
+    calculateFeePercentage();
+    calculateProfit();
+  };
+
   const formatNumber = (value: string | number) => {
     const parts = String(value).split('.');
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -97,7 +104,7 @@ const CryptoProfitCalculator = () => {
     }
   }, [purchasePrice, purchaseAmount, buyFee]);
 
-  const calculateProfit = () => {
+  const calculateProfit = useCallback(() => {
     const buyPrice = parseFormattedNumber(purchasePrice);
     const amount = parseFloat(purchaseAmount) || 0;
     const sellPrice = parseFormattedNumber(salePrice);
@@ -120,7 +127,7 @@ const CryptoProfitCalculator = () => {
       setProfit(null);
       setProfitPercentage(null);
     }
-  };
+  },[purchasePrice, purchaseAmount, salePrice, buyFee, sellFee]);
 
   //bug fix due to This error is related to a type mismatch between the onCheckedChange prop of the Checkbox component and the setMatchFees function. Let's address this.
   const handleCheckboxChange = (checked: CheckedState) => {
@@ -139,12 +146,6 @@ const CryptoProfitCalculator = () => {
     setPriceIncrease(null);
     setFeePercentage(null);
   };
-
-  useEffect(() => {
-    calculateEffectiveAmount();
-    calculatePriceIncrease();
-    calculateFeePercentage();
-  }, [calculateEffectiveAmount, calculatePriceIncrease, calculateFeePercentage]);
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -167,6 +168,7 @@ const CryptoProfitCalculator = () => {
                   type="text"
                   value={purchasePrice}
                   onChange={(e) => handleNumberInput(e.target.value, setPurchasePrice)}
+                  onBlur={handleBlur}
                   placeholder="Enter price per coin when buying"
                   className="mt-1"
                 />
@@ -180,6 +182,7 @@ const CryptoProfitCalculator = () => {
                   type="number"
                   value={purchaseAmount}
                   onChange={(e) => setPurchaseAmount(e.target.value)}
+                  onBlur={handleBlur}
                   placeholder="Enter number of coins being purchased"
                   className="mt-1"
                   step="any"
@@ -194,6 +197,7 @@ const CryptoProfitCalculator = () => {
                   type="text"
                   value={buyFee}
                   onChange={(e) => handleNumberInput(e.target.value, setBuyFee)}
+                  onBlur={handleBlur}
                   placeholder="Enter fee paid when buying"
                   className="mt-1"
                 />
@@ -225,6 +229,7 @@ const CryptoProfitCalculator = () => {
                   type="text"
                   value={salePrice}
                   onChange={(e) => handleNumberInput(e.target.value, setSalePrice)}
+                  onBlur={handleBlur}
                   placeholder="Enter price per coin when selling"
                   className="mt-1"
                 />
@@ -255,6 +260,7 @@ const CryptoProfitCalculator = () => {
                   type="text"
                   value={sellFee}
                   onChange={(e) => handleNumberInput(e.target.value, setSellFee)}
+                  onBlur={handleBlur}
                   placeholder="Enter fee paid when selling"
                   className="mt-1"
                   disabled={matchFees}
