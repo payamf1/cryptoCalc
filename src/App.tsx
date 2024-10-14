@@ -21,6 +21,7 @@ const CryptoProfitCalculator = () => {
   const [sellFee, setSellFee] = useState('');
   const [matchFees, setMatchFees] = useState(false);
   const [profit, setProfit] = useState<string | null>(null);
+  const [profitPercentage, setProfitPercentage] = useState<string | null>(null);
   const [effectiveAmount, setEffectiveAmount] = useState<string>('0');
   const [priceIncrease, setPriceIncrease] = useState<string | null>(null);
   const [feePercentage, setFeePercentage] = useState<string | null>(null);
@@ -107,13 +108,17 @@ const CryptoProfitCalculator = () => {
       const totalCost = (buyPrice * parseFloat(purchaseAmount)) + buyFeeAmount;
       const totalRevenue = (sellPrice * amount) - sellFeeAmount;
       const profitValue = totalRevenue - totalCost;
+      const profitPercentageValue = ((profitValue / totalCost) * 100).toFixed(2);
+
       console.log('*** totalCost: ', totalCost);
       console.log('*** totalRevenue: ', totalRevenue);
-      console.log('***');
-      console.log('*** totalRevenue: (', sellPrice, '*', amount, ') -', sellFeeAmount);
+      
       setProfit(profitValue.toFixed(2));
+      setProfitPercentage(profitPercentageValue);
+
     } else {
       setProfit(null);
+      setProfitPercentage(null);
     }
   };
 
@@ -282,15 +287,15 @@ const CryptoProfitCalculator = () => {
           <Button onClick={calculateProfit} className="w-full">
             Calculate Profit
           </Button>
-          {profit !== null && (
+          {profit !== null && profitPercentage !== null && (
             <div className="mt-4 text-center">
               <p className="text-lg font-semibold">
-                &nbsp;
-                The Profit/Loss: ${formatNumber(profit)}
-                &nbsp;
-                <div>
-                  This is +/- profit/loss (TBD)
+                The Profit/Loss: <div className={`text-lg font-semibold ${parseFloat(profit) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {parseFloat(profit) >= 0 ? 'Profit of ' : 'Loss of '}${Math.abs(parseFloat(profit))}
                 </div>
+              </p> 
+              <p className={`text-md font-semibold ${parseFloat(profitPercentage) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {parseFloat(profitPercentage) >= 0 ? '(+' : '(-'}{Math.abs(parseFloat(profitPercentage))}% {parseFloat(profitPercentage) >= 0 ? 'Increase)' : 'Decrease)'}
               </p>
             </div>
           )}
