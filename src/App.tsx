@@ -288,6 +288,9 @@ const CryptoProfitCalculator = () => {
                 &nbsp;
                 The Profit/Loss: ${formatNumber(profit)}
                 &nbsp;
+                <div>
+                  This is +/- profit/loss (TBD)
+                </div>
               </p>
             </div>
           )}
