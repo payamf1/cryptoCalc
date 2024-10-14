@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
 import './App.css'
@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { HelpCircle } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { CheckedState } from '@radix-ui/react-checkbox'
 
 
 const CryptoProfitCalculator = () => {
@@ -19,43 +20,41 @@ const CryptoProfitCalculator = () => {
   const [salePrice, setSalePrice] = useState('');
   const [sellFee, setSellFee] = useState('');
   const [matchFees, setMatchFees] = useState(false);
-  const [profit, setProfit] = useState(null);
-  const [effectiveAmount, setEffectiveAmount] = useState(null);
-  const [priceIncrease, setPriceIncrease] = useState(null);
-  const [feePercentage, setFeePercentage] = useState(null);
+  const [profit, setProfit] = useState<string | null>(null);
+  const [effectiveAmount, setEffectiveAmount] = useState<string>('0');
+  const [priceIncrease, setPriceIncrease] = useState<string | null>(null);
+  const [feePercentage, setFeePercentage] = useState<string | null>(null);
 
-  useEffect(() => {
-    calculateEffectiveAmount();
-    calculatePriceIncrease();
-    calculateFeePercentage();
-  }, [purchasePrice, purchaseAmount, buyFee, salePrice]);
-
+  
   useEffect(() => {
     if (matchFees && feePercentage !== null) {
-      const saleAmount = parseFormattedNumber(salePrice) * parseFloat(effectiveAmount);
-      const matchedSellFee = (feePercentage / 100 * saleAmount).toFixed(2);
-      setSellFee(formatNumber(matchedSellFee));
+      const saleAmount = parseFormattedNumber(salePrice) * parseFloat(effectiveAmount || '0');
+      const feePercentageNumber = parseFloat(feePercentage);
+      if (!isNaN(feePercentageNumber)) {
+        const matchedSellFee = ((feePercentageNumber / 100) * saleAmount).toFixed(2);
+        setSellFee(formatNumber(matchedSellFee));
+      }
     }
   }, [matchFees, feePercentage, salePrice, effectiveAmount]);
 
-  const formatNumber = (value) => {
+  const formatNumber = (value: string | number) => {
     const parts = String(value).split('.');
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return parts.join('.');
   };
 
-  const handleNumberInput = (value, setter) => {
+  const handleNumberInput = (value: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
     const cleanedValue = value.replace(/[^\d.]/g, '');
     const parts = cleanedValue.split('.');
     const formattedValue = parts[0] + (parts.length > 1 ? '.' + parts[1] : '');
     setter(formatNumber(formattedValue));
   };
 
-  const parseFormattedNumber = (value) => {
+  const parseFormattedNumber = (value: string) => {
     return parseFloat(value.replace(/,/g, '')) || 0;
   };
 
-  const calculateEffectiveAmount = () => {
+  const calculateEffectiveAmount = useCallback(() => {
     const price = parseFormattedNumber(purchasePrice);
     const amount = parseFloat(purchaseAmount) || 0;
     const fee = parseFormattedNumber(buyFee);
@@ -65,11 +64,11 @@ const CryptoProfitCalculator = () => {
       const effectiveAmt = (price * amount) / totalCost * amount;
       setEffectiveAmount(effectiveAmt.toFixed(8));
     } else {
-      setEffectiveAmount(null);
+      setEffectiveAmount('');
     }
-  };
+  }, [purchasePrice, purchaseAmount, buyFee]);
 
-  const calculatePriceIncrease = () => {
+  const calculatePriceIncrease = useCallback(() => {
     const buyPrice = parseFormattedNumber(purchasePrice);
     const sellPrice = parseFormattedNumber(salePrice);
 
@@ -79,9 +78,9 @@ const CryptoProfitCalculator = () => {
     } else {
       setPriceIncrease(null);
     }
-  };
+  }, [purchasePrice, salePrice]);
 
-  const calculateFeePercentage = () => {
+  const calculateFeePercentage = useCallback(() => {
     const price = parseFormattedNumber(purchasePrice);
     const amount = parseFloat(purchaseAmount) || 0;
     const fee = parseFormattedNumber(buyFee);
@@ -93,7 +92,7 @@ const CryptoProfitCalculator = () => {
     } else {
       setFeePercentage(null);
     }
-  };
+  }, [purchasePrice, purchaseAmount, buyFee]);
 
   const calculateProfit = () => {
     const buyPrice = parseFormattedNumber(purchasePrice);
@@ -112,6 +111,11 @@ const CryptoProfitCalculator = () => {
     }
   };
 
+  //bug fix due to This error is related to a type mismatch between the onCheckedChange prop of the Checkbox component and the setMatchFees function. Let's address this.
+  const handleCheckboxChange = (checked: CheckedState) => {
+    setMatchFees(checked == true);
+  };
+
   const clearValues = () => {
     setPurchasePrice('');
     setPurchaseAmount('');
@@ -120,10 +124,16 @@ const CryptoProfitCalculator = () => {
     setSellFee('');
     setMatchFees(false);
     setProfit(null);
-    setEffectiveAmount(null);
+    setEffectiveAmount('0');
     setPriceIncrease(null);
     setFeePercentage(null);
   };
+
+  useEffect(() => {
+    calculateEffectiveAmount();
+    calculatePriceIncrease();
+    calculateFeePercentage();
+  }, [calculateEffectiveAmount, calculatePriceIncrease, calculateFeePercentage]);
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -243,7 +253,7 @@ const CryptoProfitCalculator = () => {
                 <Checkbox 
                   id="matchFees" 
                   checked={matchFees}
-                  onCheckedChange={setMatchFees}
+                  onCheckedChange={handleCheckboxChange}
                 />
                 <Label htmlFor="matchFees">
                   Estimate Selling Fee
