@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
+import { HelpCircle } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+
 
 const CryptoProfitCalculator = () => {
   const [purchasePrice, setPurchasePrice] = useState('');
@@ -131,7 +134,7 @@ const CryptoProfitCalculator = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Buying Information</CardTitle>
+              <CardTitle className="text-lg">Buy Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -156,7 +159,7 @@ const CryptoProfitCalculator = () => {
                   type="number"
                   value={purchaseAmount}
                   onChange={(e) => setPurchaseAmount(e.target.value)}
-                  placeholder="Enter number of coins purchased"
+                  placeholder="Enter number of coins being purchased"
                   className="mt-1"
                   step="any"
                 />
@@ -175,7 +178,7 @@ const CryptoProfitCalculator = () => {
                 />
                 {feePercentage !== null && (
                   <div className="mt-1 text-sm text-gray-500">
-                    This fee is approximately {feePercentage}% of the total purchase amount.
+                    approx. {feePercentage}% of the purchase amount.
                   </div>
                 )}
               </div>
@@ -189,7 +192,7 @@ const CryptoProfitCalculator = () => {
           
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Selling Information</CardTitle>
+              <CardTitle className="text-lg">Sell Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -213,7 +216,19 @@ const CryptoProfitCalculator = () => {
               <div>
                 <label htmlFor="sellFee" className="block text-sm font-medium text-gray-700">
                   Selling Fee ($)
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="h-4 w-4 ml-1 text-gray-500" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Enter the fee charged at the time of selling. If you don't know this amount, </p>
+                        <p>select the box below to use the buying fee as an approximate.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </label>
+                
                 <Input
                   id="sellFee"
                   type="text"
@@ -231,7 +246,18 @@ const CryptoProfitCalculator = () => {
                   onCheckedChange={setMatchFees}
                 />
                 <Label htmlFor="matchFees">
-                  Match fee percentage
+                  Estimate Selling Fee
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="h-4 w-4 ml-1 text-gray-500" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>If you don't know the selling fee, this will use the percentage </p>
+                        <p>of fees paid when bought to estimate the fees for selling.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </Label>
               </div>
             </CardContent>
@@ -243,7 +269,9 @@ const CryptoProfitCalculator = () => {
           {profit !== null && (
             <div className="mt-4 text-center">
               <p className="text-lg font-semibold">
-                Profit: ${formatNumber(profit)}
+                &nbsp;
+                The Profit/Loss: ${formatNumber(profit)}
+                &nbsp;
               </p>
             </div>
           )}
