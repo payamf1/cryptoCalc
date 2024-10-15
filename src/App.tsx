@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { HelpCircle } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { CheckedState } from '@radix-ui/react-checkbox'
-import { Coins } from 'lucide-react';
+import { Coins, Coffee, CircleDollarSign, Earth } from 'lucide-react';
 
 const CryptoProfitCalculator = () => {
   const [purchasePrice, setPurchasePrice] = useState('');
@@ -242,12 +242,19 @@ const CryptoProfitCalculator = () => {
                   placeholder="Enter price per coin when selling"
                   className="mt-1"
                 />
+                {priceIncrease !== null && (
+                    <span className="absolute right-2 top-10 transform -translate-y-1/2 text-xs text-gray-500">
+                      Price change of {priceIncrease}%
+                    </span>
+                  )}
               </div>
+              {/* 
               {priceIncrease !== null && (
                 <div className="mt-2 text-sm text-gray-600">
                   Price change: {priceIncrease}%
                 </div>
               )}
+              */}
               <div>
                 <label htmlFor="sellFee" className="block text-sm font-medium text-gray-700">
                   Selling Fee ($)
@@ -274,27 +281,18 @@ const CryptoProfitCalculator = () => {
                   disabled={matchFees}
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="matchFees" 
-                  checked={matchFees}
-                  onCheckedChange={handleCheckboxChange}
-                />
-                <Label htmlFor="matchFees">
-                  Estimate Selling Fee
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <HelpCircle className="h-4 w-4 ml-1 text-gray-500" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>If you don't know the selling fee, this will use the percentage </p>
-                        <p>of fees paid when bought to estimate the fees for selling.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+              <div className="flex items-top space-x-2 cursor-pointer">
+                <Checkbox id="matchFees" checked={matchFees} onCheckedChange={handleCheckboxChange} />
+                <div className="grid gap-1.5 text-left leading-none">
+
+                <Label htmlFor="matchFees" ><p className="pb-1">Estimate Selling Fee</p>
+                <p className="text-sm font-normal text-muted-foreground">
+                If you don't know the selling fee, use the percentage of fees paid when buying to estimate the selling fees.
+                </p>
                 </Label>
               </div>
+              </div>
+
             </CardContent>
           </Card>
           
@@ -302,22 +300,32 @@ const CryptoProfitCalculator = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Total Profit/Loss</CardTitle>
+              <CardTitle className="text-lg">Profile or Loss Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {profit == null && profitPercentage == null && (
-                <div className="mt-4 text-center">
-                  <div>
-                    Keep going...
-                    </div>
-                  <p>
-                    &nbsp;
-                  </p>
-                </div>
-              )}
 
-              {profit !== null && profitPercentage !== null && (
-                <div className="mt-4 text-center">
+          
+            {profit == null && profitPercentage == null && (
+              <div className="flex justify-center mt-4 text-center">
+                  <div className="w-64 p-3 h-8 rounded-lg shadow-sm">
+                  </div>
+                <p>
+                  &nbsp;
+                </p>
+              </div>
+            )}
+            
+
+
+              <div className="flex justify-center">
+                {profit !== null && profitPercentage !== null && (
+                  <div className={`w-64 p-3 rounded-lg shadow-sm ${parseFloat(profit) >= 0 ? 'bg-green-50 text-green-600': 'bg-red-50 text-red-600'}`}>
+                    <div className="flex items-center space-x-2">
+                      <CircleDollarSign size={20} />
+                      <span className="text-sm font-semibold">Your Profit/Loss</span>
+                    </div>
+
+                    <div className="mt-4 text-center">
                   <div className={`text-lg font-semibold ${parseFloat(profit) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {parseFloat(profit) >= 0 ? 'Profit of ' : 'Loss of '}${Math.abs(parseFloat(profit))}
                     </div>
@@ -325,11 +333,14 @@ const CryptoProfitCalculator = () => {
                     {parseFloat(profitPercentage) >= 0 ? '(+' : '(-'}{Math.abs(parseFloat(profitPercentage))}% {parseFloat(profitPercentage) >= 0 ? 'Increase)' : 'Decrease)'}
                   </p>
                 </div>
-              )}
-
+                  </div>
+                  
+                  
+                )}
+              </div>
               
               <div className="flex justify-center">
-                {effectiveAmount && (
+                {effectiveAmount  && (
                   <div className="w-64 p-3 bg-blue-50 rounded-lg shadow-sm">
                     <div className="flex items-center space-x-2">
                       <Coins className="text-blue-500" size={20} />
@@ -344,11 +355,29 @@ const CryptoProfitCalculator = () => {
             </CardContent>
           </Card>
           
+          <div>
+            <Button onClick={clearValues} className="w-min" variant="outline">
+              Clear Values
+            </Button>
+          </div>
           
-          <Button onClick={clearValues} className="w-full" variant="outline">
-            Clear Values
-          </Button>
-
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button 
+                  onClick={() => window.open('https://www.buymeacoffee.com/mightycalculator', '_blank')}
+                  className="w-min bg-[#5F7FFF] hover:bg-[#4B6FEF] text-white hover:text-white"
+                  variant="outline"
+                >
+                  <Earth className="mr-2 h-4 w-4" />Help me see the world!
+                </Button>
+                  </TooltipTrigger>
+              <TooltipContent side='bottom' className="text-center bg-slate-500">
+                <Coffee className="text-center mr-2 h-4 w-4" />It's basically a donation!
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
           <p>To-do: make price change under selling price to be embedded more into the field.
             make the effective coin box only appear when values entered without affecting height.
           </p>
