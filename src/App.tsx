@@ -304,20 +304,27 @@ const CryptoProfitCalculator = () => {
             </CardHeader>
             <CardContent className="space-y-4">
 
-          
-            {profit == null && profitPercentage == null && (
-              <div className="flex justify-center mt-4 text-center">
-                  <div className="w-64 p-3 h-8 rounded-lg shadow-sm">
+            <div className="flex justify-center">
+              {/* Your Profit/Loss: no STATE */}
+                {profit == null && profitPercentage == null && (  
+                    <div className="w-64 p-3 rounded-lg shadow-sm bg-slate-100">
+                      <div className="flex items-center space-x-2">
+                        <CircleDollarSign size={20} className="text-gray-600"/>
+                        <span className="text-sm font-semibold text-gray-600">Your Profit/Loss</span>
+                      </div>
+
+                      <div className="mt-4 text-center">
+                    <div className="text-lg font-semibold text-gray-600">
+                      &nbsp;
+                      </div>
+                    <p className="text-md font-semibold">
+                      &nbsp;
+                    </p>
                   </div>
-                <p>
-                  &nbsp;
-                </p>
-              </div>
-            )}
-            
-
-
-              <div className="flex justify-center">
+                    </div> 
+                )}
+              
+              {/* Your Profit/Loss: with STATE */}
                 {profit !== null && profitPercentage !== null && (
                   <div className={`w-64 p-3 rounded-lg shadow-sm ${parseFloat(profit) >= 0 ? 'bg-green-50 text-green-600': 'bg-red-50 text-red-600'}`}>
                     <div className="flex items-center space-x-2">
@@ -334,13 +341,24 @@ const CryptoProfitCalculator = () => {
                   </p>
                 </div>
                   </div>
-                  
-                  
                 )}
               </div>
               
+              {/* Effective Coin value after fees */}
               <div className="flex justify-center">
-                {effectiveAmount  && (
+                {effectiveAmount == '0' && (
+                  <div className="w-64 p-3 bg-slate-100 rounded-lg shadow-sm">
+                    <div className="flex items-center space-x-2">
+                      <Coins className="text-grey-600" size={20} />
+                      <span className="text-sm text-grey-600">Effective Coin value after fees</span>
+                    </div>
+                    <div className="mt-2 text-center">
+                      <span className="text-sm font-bold text-grey-600">&nbsp;</span>
+                    </div>
+                  </div>
+                )}
+
+                {effectiveAmount > '0' && (
                   <div className="w-64 p-3 bg-blue-50 rounded-lg shadow-sm">
                     <div className="flex items-center space-x-2">
                       <Coins className="text-blue-500" size={20} />
