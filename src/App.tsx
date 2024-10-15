@@ -207,6 +207,7 @@ const CryptoProfitCalculator = () => {
                 <Input
                   id="purchasePrice"
                   type="text"
+                  inputMode='numeric'
                   value={purchasePrice}
                   onChange={(e) => handleNumberInput(e.target.value, setPurchasePrice)}
                   placeholder="Enter price per coin when buying"
