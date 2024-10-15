@@ -206,7 +206,7 @@ const CryptoProfitCalculator = () => {
                 </label>
                 <Input
                   id="purchasePrice"
-                  type="number"
+                  type="text"
                   inputMode='numeric'
                   value={purchasePrice}
                   onChange={(e) => handleNumberInput(e.target.value, setPurchasePrice)}
@@ -236,7 +236,7 @@ const CryptoProfitCalculator = () => {
                 <div className="relative">
                 <Input
                     id="buyFee"
-                    type="number"
+                    type="text"
                     inputMode='numeric'
                     value={buyFee}
                     onChange={(e) => handleNumberInput(e.target.value, setBuyFee)}
@@ -267,7 +267,7 @@ const CryptoProfitCalculator = () => {
                 </label>
                 <Input
                   id="salePrice"
-                  type="number"
+                  type="text"
                   inputMode='numeric'
                   value={salePrice}
                   onChange={(e) => handleNumberInput(e.target.value, setSalePrice)}
@@ -299,7 +299,7 @@ const CryptoProfitCalculator = () => {
                 
                 <Input
                   id="sellFee"
-                  type="number"
+                  type="text"
                   inputMode='numeric'
                   value={sellFee}
                   onChange={(e) => handleNumberInput(e.target.value, setSellFee)}
