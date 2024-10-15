@@ -154,7 +154,7 @@ const CryptoProfitCalculator = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label htmlFor="purchasePrice" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="purchasePrice" inputMode='numeric' className="block text-sm font-medium text-gray-700">
                   Buying Price ($ per coin)
                 </label>
                 <Input
