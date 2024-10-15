@@ -300,7 +300,7 @@ const CryptoProfitCalculator = () => {
                 <Input
                   id="sellFee"
                   type="text"
-                  inputMode='numeric'
+                  inputMode='decimal'
                   value={sellFee}
                   onChange={(e) => handleNumberInput(e.target.value, setSellFee)}
                   placeholder="Enter fee paid when selling"
