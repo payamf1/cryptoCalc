@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
 import './App.css'
+import FeedbackForm from './FeedbackForm';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -434,4 +435,13 @@ const CryptoProfitCalculator = () => {
   );
 };
 
-export default CryptoProfitCalculator;
+const App = () => {
+  return (
+    <div className=" min-h-screen py-8">
+      <CryptoProfitCalculator />
+      <FeedbackForm /> 
+    </div>
+  );
+};
+
+export default App;
