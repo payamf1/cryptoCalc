@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
 import './App.css'
@@ -10,7 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { HelpCircle } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-
+import { CheckedState } from '@radix-ui/react-checkbox'
+import { Coins } from 'lucide-react';
 
 const CryptoProfitCalculator = () => {
   const [purchasePrice, setPurchasePrice] = useState('');
@@ -19,98 +20,131 @@ const CryptoProfitCalculator = () => {
   const [salePrice, setSalePrice] = useState('');
   const [sellFee, setSellFee] = useState('');
   const [matchFees, setMatchFees] = useState(false);
-  const [profit, setProfit] = useState(null);
-  const [effectiveAmount, setEffectiveAmount] = useState(null);
-  const [priceIncrease, setPriceIncrease] = useState(null);
-  const [feePercentage, setFeePercentage] = useState(null);
+  const [profit, setProfit] = useState<string | null>(null);
+  const [profitPercentage, setProfitPercentage] = useState<string | null>(null);
+  const [effectiveAmount, setEffectiveAmount] = useState<string>('0');
+  const [priceIncrease, setPriceIncrease] = useState<string | null>(null);
+  const [feePercentage, setFeePercentage] = useState<string | null>(null);
 
-  useEffect(() => {
-    calculateEffectiveAmount();
-    calculatePriceIncrease();
-    calculateFeePercentage();
-  }, [purchasePrice, purchaseAmount, buyFee, salePrice]);
-
-  useEffect(() => {
-    if (matchFees && feePercentage !== null) {
-      const saleAmount = parseFormattedNumber(salePrice) * parseFloat(effectiveAmount);
-      const matchedSellFee = (feePercentage / 100 * saleAmount).toFixed(2);
-      setSellFee(formatNumber(matchedSellFee));
-    }
-  }, [matchFees, feePercentage, salePrice, effectiveAmount]);
-
-  const formatNumber = (value) => {
+  const formatNumber = (value: string | number) => {
     const parts = String(value).split('.');
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return parts.join('.');
   };
 
-  const handleNumberInput = (value, setter) => {
+  const handleNumberInput = (value: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
     const cleanedValue = value.replace(/[^\d.]/g, '');
     const parts = cleanedValue.split('.');
     const formattedValue = parts[0] + (parts.length > 1 ? '.' + parts[1] : '');
     setter(formatNumber(formattedValue));
   };
 
-  const parseFormattedNumber = (value) => {
+  const parseFormattedNumber = (value: string) => {
     return parseFloat(value.replace(/,/g, '')) || 0;
   };
 
-  const calculateEffectiveAmount = () => {
+  const calculateEffectiveAmount = useCallback(() => {
     const price = parseFormattedNumber(purchasePrice);
     const amount = parseFloat(purchaseAmount) || 0;
     const fee = parseFormattedNumber(buyFee);
-
+  
     if (price > 0 && amount > 0) {
       const totalCost = price * amount + fee;
-      const effectiveAmt = (price * amount) / totalCost * amount;
-      setEffectiveAmount(effectiveAmt.toFixed(8));
-    } else {
-      setEffectiveAmount(null);
+      return ((price * amount) / totalCost * amount).toFixed(8);
     }
-  };
+    return '0';
+  }, [purchasePrice, purchaseAmount, buyFee]);
 
-  const calculatePriceIncrease = () => {
+  const calculatePriceIncrease = useCallback(() => {
     const buyPrice = parseFormattedNumber(purchasePrice);
     const sellPrice = parseFormattedNumber(salePrice);
-
+  
     if (buyPrice > 0 && sellPrice > 0) {
       const increase = ((sellPrice - buyPrice) / buyPrice) * 100;
-      setPriceIncrease(increase.toFixed(2));
-    } else {
-      setPriceIncrease(null);
+      return increase.toFixed(2);
     }
-  };
+    return null;
+  }, [purchasePrice, salePrice]);
 
-  const calculateFeePercentage = () => {
+  const calculateFeePercentage = useCallback(() => {
     const price = parseFormattedNumber(purchasePrice);
     const amount = parseFloat(purchaseAmount) || 0;
     const fee = parseFormattedNumber(buyFee);
-
+  
     if (price > 0 && amount > 0 && fee > 0) {
       const totalPurchase = price * amount;
       const percentage = (fee / totalPurchase) * 100;
-      setFeePercentage(percentage.toFixed(2));
-    } else {
-      setFeePercentage(null);
+      return percentage.toFixed(2);
     }
-  };
+    return null;
+  }, [purchasePrice, purchaseAmount, buyFee]);
 
-  const calculateProfit = () => {
+  const calculateProfit = useCallback(() => {
     const buyPrice = parseFormattedNumber(purchasePrice);
-    const amount = parseFloat(effectiveAmount) || 0;
+    const amount = parseFloat(purchaseAmount) || 0;
     const sellPrice = parseFormattedNumber(salePrice);
     const buyFeeAmount = parseFormattedNumber(buyFee);
     const sellFeeAmount = parseFormattedNumber(sellFee);
     
     if (buyPrice > 0 && amount > 0 && sellPrice > 0) {
-      const totalCost = buyPrice * parseFloat(purchaseAmount) + buyFeeAmount;
-      const totalRevenue = sellPrice * amount - sellFeeAmount;
+      const totalCost = (buyPrice * amount) + buyFeeAmount;
+      const totalRevenue = (sellPrice * amount) - sellFeeAmount;
       const profitValue = totalRevenue - totalCost;
-      setProfit(profitValue.toFixed(2));
-    } else {
-      setProfit(null);
+      const profitPercentageValue = ((profitValue / totalCost) * 100).toFixed(2);
+      
+      return {
+        profit: profitValue.toFixed(2),
+        profitPercentage: profitPercentageValue
+      };
     }
+    return { profit: null, profitPercentage: null };
+  }, [purchasePrice, purchaseAmount, salePrice, buyFee, sellFee]);
+
+  //bug fix due to This error is related to a type mismatch between the onCheckedChange prop of the Checkbox component and the setMatchFees function. Let's address this.
+  const handleCheckboxChange = (checked: CheckedState) => {
+    setMatchFees(checked == true);
   };
+
+
+  // start recal on change
+  const calculateAll = useCallback(() => {
+    
+    
+    // Calculate effective amount
+    const effectiveAmt = calculateEffectiveAmount();
+    setEffectiveAmount(effectiveAmt);
+
+    // Calculate price increase
+    const priceIncreaseValue = calculatePriceIncrease();
+    setPriceIncrease(priceIncreaseValue);
+
+    // Calculate fee percentage
+    const feePercentageValue = calculateFeePercentage();
+    setFeePercentage(feePercentageValue);
+
+    // Calculate profit
+    const { profit, profitPercentage } = calculateProfit();
+    setProfit(profit);
+    setProfitPercentage(profitPercentage);
+    
+  }, [calculateEffectiveAmount, calculatePriceIncrease, calculateFeePercentage, calculateProfit]);
+
+  useEffect(() => {
+    calculateAll();
+  }, [calculateAll]);
+
+  useEffect(() => {
+    if (matchFees && feePercentage !== null) {
+      const saleAmount = parseFormattedNumber(salePrice) * parseFloat(effectiveAmount || '0');
+      const feePercentageNumber = parseFloat(feePercentage);
+      if (!isNaN(feePercentageNumber)) {
+        const matchedSellFee = ((feePercentageNumber / 100) * saleAmount).toFixed(2);
+        setSellFee(formatNumber(matchedSellFee));
+      }
+    }
+  }, [matchFees, feePercentage, salePrice, effectiveAmount]);
+  // end recal on change
+
 
   const clearValues = () => {
     setPurchasePrice('');
@@ -120,18 +154,19 @@ const CryptoProfitCalculator = () => {
     setSellFee('');
     setMatchFees(false);
     setProfit(null);
-    setEffectiveAmount(null);
+    setEffectiveAmount('0');
     setPriceIncrease(null);
     setFeePercentage(null);
   };
 
+
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle>Crypto Profit Calculator</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-6 lg:space-y-0">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Buy Information</CardTitle>
@@ -168,25 +203,25 @@ const CryptoProfitCalculator = () => {
                 <label htmlFor="buyFee" className="block text-sm font-medium text-gray-700">
                   Purchase Fee ($)
                 </label>
+                <div className="relative">
                 <Input
-                  id="buyFee"
-                  type="text"
-                  value={buyFee}
-                  onChange={(e) => handleNumberInput(e.target.value, setBuyFee)}
-                  placeholder="Enter fee paid when buying"
-                  className="mt-1"
-                />
+                    id="buyFee"
+                    type="text"
+                    value={buyFee}
+                    onChange={(e) => handleNumberInput(e.target.value, setBuyFee)}
+                    placeholder="Enter fee paid when buying"
+                    className="mt-1"
+                  />
                 {feePercentage !== null && (
-                  <div className="mt-1 text-sm text-gray-500">
-                    approx. {feePercentage}% of the purchase amount.
-                  </div>
-                )}
-              </div>
-              {effectiveAmount && (
-                <div className="mt-2 text-sm text-gray-600">
-                  Actual coins owned after fees: {effectiveAmount}
+                    <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
+                      approx. {feePercentage}%
+                    </span>
+                  )}
                 </div>
-              )}
+                
+              </div>
+              
+              
             </CardContent>
           </Card>
           
@@ -195,7 +230,7 @@ const CryptoProfitCalculator = () => {
               <CardTitle className="text-lg">Sell Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
+              <div className="relative">
                 <label htmlFor="salePrice" className="block text-sm font-medium text-gray-700">
                   Selling Price ($ per coin)
                 </label>
@@ -243,7 +278,7 @@ const CryptoProfitCalculator = () => {
                 <Checkbox 
                   id="matchFees" 
                   checked={matchFees}
-                  onCheckedChange={setMatchFees}
+                  onCheckedChange={handleCheckboxChange}
                 />
                 <Label htmlFor="matchFees">
                   Estimate Selling Fee
@@ -263,24 +298,64 @@ const CryptoProfitCalculator = () => {
             </CardContent>
           </Card>
           
-          <Button onClick={calculateProfit} className="w-full">
-            Calculate Profit
-          </Button>
-          {profit !== null && (
-            <div className="mt-4 text-center">
-              <p className="text-lg font-semibold">
-                &nbsp;
-                The Profit/Loss: ${formatNumber(profit)}
-                &nbsp;
-              </p>
-            </div>
-          )}
+
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Total Profit/Loss</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {profit == null && profitPercentage == null && (
+                <div className="mt-4 text-center">
+                  <div>
+                    Keep going...
+                    </div>
+                  <p>
+                    &nbsp;
+                  </p>
+                </div>
+              )}
+
+              {profit !== null && profitPercentage !== null && (
+                <div className="mt-4 text-center">
+                  <div className={`text-lg font-semibold ${parseFloat(profit) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {parseFloat(profit) >= 0 ? 'Profit of ' : 'Loss of '}${Math.abs(parseFloat(profit))}
+                    </div>
+                  <p className={`text-md font-semibold ${parseFloat(profitPercentage) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {parseFloat(profitPercentage) >= 0 ? '(+' : '(-'}{Math.abs(parseFloat(profitPercentage))}% {parseFloat(profitPercentage) >= 0 ? 'Increase)' : 'Decrease)'}
+                  </p>
+                </div>
+              )}
+
+              
+              <div className="flex justify-center">
+                {effectiveAmount && (
+                  <div className="w-64 p-3 bg-blue-50 rounded-lg shadow-sm">
+                    <div className="flex items-center space-x-2">
+                      <Coins className="text-blue-500" size={20} />
+                      <span className="text-sm text-blue-700">Effective Coin value after fees</span>
+                    </div>
+                    <div className="mt-2 text-center">
+                      <span className="text-sm font-bold text-blue-600">{effectiveAmount}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          
+          
           <Button onClick={clearValues} className="w-full" variant="outline">
             Clear Values
           </Button>
+
+          <p>To-do: make price change under selling price to be embedded more into the field.
+            make the effective coin box only appear when values entered without affecting height.
+          </p>
         </div>
       </CardContent>
     </Card>
+    
   );
 };
 
