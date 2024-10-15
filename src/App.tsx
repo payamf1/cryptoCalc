@@ -25,6 +25,7 @@ const CryptoProfitCalculator = () => {
   const [effectiveAmount, setEffectiveAmount] = useState<string>('0');
   const [priceIncrease, setPriceIncrease] = useState<string | null>(null);
   const [feePercentage, setFeePercentage] = useState<string | null>(null);
+  const [sellFeePercentage, setSellFeePercentage] = useState<string | null>(null);
 
   const formatNumber = (value: string | number) => {
     const parts = String(value).split('.');
@@ -79,6 +80,19 @@ const CryptoProfitCalculator = () => {
     return null;
   }, [purchasePrice, purchaseAmount, buyFee]);
 
+  //calculate sell fee percentage and return value
+  const calculateSellFeePercentage = useCallback(() => {
+    const price = parseFormattedNumber(salePrice);
+    const amount = parseFloat(purchaseAmount) || 0;
+    const fee = parseFormattedNumber(sellFee);
+  
+    if (price > 0 && amount > 0 && fee > 0) {
+      const percentage = (fee / (price * amount)) * 100;
+      return percentage.toFixed(2);
+    }
+    return null;
+  }, [salePrice, purchaseAmount, sellFee]);
+
   const calculateProfit = useCallback(() => {
     const buyPrice = parseFormattedNumber(purchasePrice);
     const amount = parseFloat(purchaseAmount) || 0;
@@ -122,12 +136,16 @@ const CryptoProfitCalculator = () => {
     const feePercentageValue = calculateFeePercentage();
     setFeePercentage(feePercentageValue);
 
+    // Calculate sell fee percentage
+    const sellfeePercentageValue = calculateSellFeePercentage();
+    setSellFeePercentage(sellfeePercentageValue);
+
     // Calculate profit
     const { profit, profitPercentage } = calculateProfit();
     setProfit(profit);
     setProfitPercentage(profitPercentage);
     
-  }, [calculateEffectiveAmount, calculatePriceIncrease, calculateFeePercentage, calculateProfit]);
+  }, [calculateEffectiveAmount, calculatePriceIncrease, calculateFeePercentage, calculateSellFeePercentage, calculateProfit]);
 
   useEffect(() => {
     calculateAll();
@@ -138,12 +156,21 @@ const CryptoProfitCalculator = () => {
       const saleAmount = parseFormattedNumber(salePrice) * parseFloat(effectiveAmount || '0');
       const feePercentageNumber = parseFloat(feePercentage);
       if (!isNaN(feePercentageNumber)) {
-        const matchedSellFee = ((feePercentageNumber / 100) * saleAmount).toFixed(2);
-        setSellFee(formatNumber(matchedSellFee));
+        const matchedBuyFee = ((feePercentageNumber / 100) * saleAmount).toFixed(2);
+        setSellFee(formatNumber(matchedBuyFee));
       }
     }
   }, [matchFees, feePercentage, salePrice, effectiveAmount]);
   // end recal on change
+
+
+  useEffect(() => {
+    const buyFeePercentage = calculateFeePercentage();
+    setFeePercentage(buyFeePercentage);
+
+    const sellFeePercentage = calculateSellFeePercentage();
+    setSellFeePercentage(sellFeePercentage);
+  }, [calculateFeePercentage, calculateSellFeePercentage]);
 
 
   const clearValues = () => {
@@ -157,6 +184,7 @@ const CryptoProfitCalculator = () => {
     setEffectiveAmount('0');
     setPriceIncrease(null);
     setFeePercentage(null);
+    setSellFeePercentage(null);
   };
 
 
@@ -264,8 +292,8 @@ const CryptoProfitCalculator = () => {
                         <HelpCircle className="h-4 w-4 ml-1 text-gray-500" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Enter the fee charged at the time of selling. If you don't know this amount, </p>
-                        <p>select the box below to use the buying fee as an approximate.</p>
+                        <p>Enter the fee charged at the time of selling. If you don't know it, </p>
+                        <p>use the checkbox below to match the buying fee for an estimate.</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -280,6 +308,11 @@ const CryptoProfitCalculator = () => {
                   className="mt-1"
                   disabled={matchFees}
                 />
+                {sellFeePercentage !== null && (
+                    <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
+                      approx. {sellFeePercentage}%
+                    </span>
+                  )}
               </div>
               <div className="flex items-top space-x-2 cursor-pointer">
                 <Checkbox id="matchFees" checked={matchFees} onCheckedChange={handleCheckboxChange} />
