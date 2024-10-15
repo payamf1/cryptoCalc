@@ -12,6 +12,7 @@ import { HelpCircle } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { CheckedState } from '@radix-ui/react-checkbox'
 import { Coins, CircleDollarSign, Earth } from 'lucide-react';
+import MetaTags from './MetaTags'
 
 const CryptoProfitCalculator = () => {
   const [purchasePrice, setPurchasePrice] = useState('');
@@ -189,6 +190,14 @@ const CryptoProfitCalculator = () => {
 
 
   return (
+    <>
+      <MetaTags
+        title="Crypto Profit Calculator"
+        description="Calculate your cryptocurrency profits with ease. Input your buying and selling information to see your potential gains."
+        image="./assets/calculator.jpg"
+        url="./assets/calculator.jpg"
+      />
+    
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle>Crypto Profit Calculator</CardTitle>
@@ -430,7 +439,7 @@ const CryptoProfitCalculator = () => {
         </div>
       </CardContent>
     </Card>
-    
+  </>
   );
 };
 
