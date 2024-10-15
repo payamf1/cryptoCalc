@@ -206,7 +206,8 @@ const CryptoProfitCalculator = () => {
                 </label>
                 <Input
                   id="purchasePrice"
-                  type="text"
+                  type="number"
+                  inputMode='numeric'
                   value={purchasePrice}
                   onChange={(e) => handleNumberInput(e.target.value, setPurchasePrice)}
                   placeholder="Enter price per coin when buying"
@@ -220,6 +221,7 @@ const CryptoProfitCalculator = () => {
                 <Input
                   id="purchaseAmount"
                   type="number"
+                  inputMode='numeric'
                   value={purchaseAmount}
                   onChange={(e) => setPurchaseAmount(e.target.value)}
                   placeholder="Enter number of coins being purchased"
@@ -234,7 +236,8 @@ const CryptoProfitCalculator = () => {
                 <div className="relative">
                 <Input
                     id="buyFee"
-                    type="text"
+                    type="number"
+                    inputMode='numeric'
                     value={buyFee}
                     onChange={(e) => handleNumberInput(e.target.value, setBuyFee)}
                     placeholder="Enter fee paid when buying"
@@ -264,7 +267,8 @@ const CryptoProfitCalculator = () => {
                 </label>
                 <Input
                   id="salePrice"
-                  type="text"
+                  type="number"
+                  inputMode='numeric'
                   value={salePrice}
                   onChange={(e) => handleNumberInput(e.target.value, setSalePrice)}
                   placeholder="Enter price per coin when selling"
@@ -295,7 +299,8 @@ const CryptoProfitCalculator = () => {
                 
                 <Input
                   id="sellFee"
-                  type="text"
+                  type="number"
+                  inputMode='numeric'
                   value={sellFee}
                   onChange={(e) => handleNumberInput(e.target.value, setSellFee)}
                   placeholder="Enter fee paid when selling"
