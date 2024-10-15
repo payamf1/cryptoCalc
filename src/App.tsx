@@ -13,6 +13,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { CheckedState } from '@radix-ui/react-checkbox'
 import { Coins, CircleDollarSign, Earth } from 'lucide-react';
 import MetaTags from './MetaTags'
+import previewImage from './assets/calculator.jpg';
 
 const CryptoProfitCalculator = () => {
   const [purchasePrice, setPurchasePrice] = useState('');
@@ -27,6 +28,8 @@ const CryptoProfitCalculator = () => {
   const [priceIncrease, setPriceIncrease] = useState<string | null>(null);
   const [feePercentage, setFeePercentage] = useState<string | null>(null);
   const [sellFeePercentage, setSellFeePercentage] = useState<string | null>(null);
+
+  const fullImageUrl = new URL(previewImage, window.location.origin).href;
 
   const formatNumber = (value: string | number) => {
     const parts = String(value).split('.');
@@ -194,8 +197,8 @@ const CryptoProfitCalculator = () => {
       <MetaTags
         title="Crypto Profit Calculator"
         description="Calculate your cryptocurrency profits with ease. Input your buying and selling information to see your potential gains."
-        image="./assets/calculator.jpg"
-        url="./assets/calculator.jpg"
+        image={fullImageUrl}
+        url={window.location.href}
       />
     
     <Card className="w-full max-w-4xl mx-auto">
