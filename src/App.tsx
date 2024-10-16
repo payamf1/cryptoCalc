@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-//import reactLogo from './assets/react.svg'
-//import viteLogo from '/vite.svg'
+import previewImage from './assets/calculator.jpg';
 import './App.css'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,7 +11,6 @@ import { HelpCircle } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { CheckedState } from '@radix-ui/react-checkbox'
 import { Coins, CircleDollarSign, Earth } from 'lucide-react';
-import previewImage from './assets/calculator.jpg';
 import { Helmet } from 'react-helmet';
 
 const CryptoProfitCalculator = () => {
@@ -198,7 +196,6 @@ const CryptoProfitCalculator = () => {
         <meta property="og:title" content="Crypto Profit Calculator" />
         <meta property="og:description" content="Calculate your cryptocurrency profits with ease. Input your buying and selling information to see your potential gains." />
         <meta property="og:image" content={fullImageUrl} />
-        <meta name="google-adsense-account" content="ca-pub-6177880546372681"></meta>
       </Helmet>
         
     
