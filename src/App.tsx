@@ -12,8 +12,8 @@ import { HelpCircle } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { CheckedState } from '@radix-ui/react-checkbox'
 import { Coins, CircleDollarSign, Earth } from 'lucide-react';
-import MetaTags from './MetaTags'
 import previewImage from './assets/calculator.jpg';
+import { Helmet } from 'react-helmet';
 
 const CryptoProfitCalculator = () => {
   const [purchasePrice, setPurchasePrice] = useState('');
@@ -193,13 +193,13 @@ const CryptoProfitCalculator = () => {
 
 
   return (
-    <>
-      <MetaTags
-        title="Crypto Profit Calculator"
-        description="Calculate your cryptocurrency profits with ease. Input your buying and selling information to see your potential gains."
-        image={fullImageUrl}
-        url={window.location.href}
-      />
+    <div>
+      <Helmet>
+        <meta property="og:title" content="Crypto Profit Calculator" />
+        <meta property="og:description" content="Calculate your cryptocurrency profits with ease. Input your buying and selling information to see your potential gains." />
+        <meta property="og:image" content={fullImageUrl} />
+      </Helmet>
+        
     
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
@@ -442,7 +442,7 @@ const CryptoProfitCalculator = () => {
         </div>
       </CardContent>
     </Card>
-  </>
+    </div>
   );
 };
 
