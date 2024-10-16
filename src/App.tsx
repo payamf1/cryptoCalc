@@ -198,6 +198,7 @@ const CryptoProfitCalculator = () => {
         <meta property="og:title" content="Crypto Profit Calculator" />
         <meta property="og:description" content="Calculate your cryptocurrency profits with ease. Input your buying and selling information to see your potential gains." />
         <meta property="og:image" content={fullImageUrl} />
+        <meta name="google-adsense-account" content="ca-pub-6177880546372681"></meta>
       </Helmet>
         
     
