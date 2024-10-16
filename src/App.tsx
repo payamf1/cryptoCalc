@@ -198,6 +198,15 @@ const CryptoProfitCalculator = () => {
         <meta property="og:image" content={fullImageUrl} />
       </Helmet>
         
+      <noscript>
+        <div className="adsbygoogle"
+             style={{display:'block'}}
+             data-ad-client="ca-pub-6177880546372681"
+             data-ad-slot="7379553377"
+             data-ad-format="auto"
+             data-full-width-responsive="true">
+        </div>
+      </noscript>
     
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
